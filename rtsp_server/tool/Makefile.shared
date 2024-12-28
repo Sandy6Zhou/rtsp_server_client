@@ -1,0 +1,35 @@
+INC:=../inc
+SRC:=../src
+OBJ:=../obj
+INSTALL:=../install
+
+CC ?= gcc
+CC_FLAG += -g -Wall -D__LINUX__ -fPIC
+LD_FLAG:=-lrt
+
+SOURCES_1:=$(wildcard $(SRC)/*.c)
+OBJS_1:=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES_1))
+
+TARGET:=librtsp_demo.so
+
+all:$(OBJ) $(TARGET)
+
+$(TARGET):$(OBJS_1)
+	$(CC) $(CC_FLAG) -I$(INC) -shared -o $@ $(OBJS_1) $(LD_FLAG)
+
+$(OBJS_1):$(OBJ)/%.o:$(SRC)/%.c
+	$(CC) $(CC_FLAG) -I$(INC) -c $< -o $@ $(LD_FLAG)
+
+$(OBJ):
+	@echo "Checking if $(OBJ) exists..."
+	@if [ ! -d "$(OBJ)" ]; then \
+		echo "Directory $(OBJ) does not exist. Creating..."; \
+		mkdir -p $(OBJ); \
+	else \
+		echo "Directory $(OBJ) already exists. Skipping creation."; \
+	fi
+
+.PRONY:clean
+clean:
+	@echo "Removing linked and compiled files......"
+	rm -rf $(OBJ) $(INSTALL)
